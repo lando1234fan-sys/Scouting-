@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRC Scouting Pro</title>
+    <!-- Lightweight QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; background: #f4f4f9; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        .tabs { display: flex; background: #2c3e50; flex-wrap: wrap; }
+        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: white; font-size: 15px; cursor: pointer; min-width: 100px; }
+        .tab-btn:hover { background: #34495e; }
+        .tab-btn.active { background: #3498db; font-weight: bold; }
+        
+        .tab-content { display: none; padding: 20px; }
+        .tab-content.active { display: block; }
+        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="number"], input[type="text"], textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .checkbox-group { display: flex; gap: 15px; align-items: center; }
+        .checkbox-group label { font-weight: normal; display: flex; align-items: center; gap: 5px; }
+        
+        button.action-btn { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 10px; }
+        button.action-btn:hover { background: #2ecc71; }
+        button.secondary-btn { background: #3498db; }
+        button.secondary-btn:hover { background: #2980b9; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f8f9fa; font-weight: bold; }
+        .table-responsive { overflow-x: auto; }
+        
+        #qrcode-container { display: flex; justify-content: center; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('matchTab')">Match Scout</button>
+        <button class="tab-btn" onclick="switchTab('pitTab')">Pit Scout</button>
+        <button class="tab-btn" onclick="switchTab('viewTab')">View Data</button>
+        <button class="tab-btn" onclick="switchTab('syncTab')">Sync/QR</button>
+    </div>
+
+    <!-- MATCH SCOUTING TAB -->
+    <div id="matchTab" class="tab-content active">
+        <h2>Match Scouting</h2>
+        <form id="matchForm">
+            <div class="form-group"><label>Team Number</label><input type="number" id="m_team" required></div>
+            <div class="form-group"><label>Match Number</label><input type="number" id="m_match" required></div>
+            
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;"><label>Auton Score</label><input type="number" id="m_auton" required></div>
+                <div class="form-group" style="flex:1;"><label>Teleop Score</label><input type="number" id="m_teleop" required></div>
+                <div class="form-group" style="flex:1;"><label>Endgame Score</label><input type="number" id="m_endgame" required></div>
+            </div>
+
+            <div class="form-group">
+                <label>Overall Rating (1-5)</label>
+                <select id="m_rating" required>
+                    <option value="1">1 - Poor</option>
+                    <option value="2">2 - Below Average</option>
+                    <option value="3" selected>3 - Average</option>
+                    <option value="4">4 - Good</option>
+                    <option value="5">5 - Excellent</option>
+                </select>
+            </div>
+            
+            <div class="form-group"><label>Notes (Optional)</label><textarea id="m_notes" rows="3"></textarea></div>
+            <button type="submit" class="action-btn">Save Match Data</button>
+        </form>
+    </div>
+
+    <!-- PIT SCOUTING TAB -->
+    <div id="pitTab" class="tab-content">
+        <h2>Pit Scouting</h2>
+        <form id="pitForm">
+            <div class="form-group"><label>Team Number</label><input type="number" id="p_team" required></div>
+            <div class="form-group"><label>Max Hopper Capacity</label><input type="number" id="p_hopper" required></div>
+            <div class="form-group"><label>Shooter Type</label><input type="text" id="p_shooter" placeholder="e.g. Flywheel, Catapult" required></div>
+            <div class="form-group"><label>Auton Route(s)</label><input type="text" id="p_routes" placeholder="e.g. Center to Trench" required></div>
+            <div class="form-group"><label>Avg Expected Auton Score</label><input type="number" id="p_avgAuton" required></div>
+            
+            <div class="form-group checkbox-group">
+                <label><input type="checkbox" id="p_trench"> Can go under trench?</label>
+                <label><input type="checkbox" id="p_bump"> Can go over bump?</label>
+            </div>
+            
+            <button type="submit" class="action-btn">Save Pit Data</button>
+        </form>
+    </div>
+
+    <!-- VIEW DATA TAB -->
+    <div id="viewTab" class="tab-content">
+        <h2>Team Match Averages</h2>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Matches</th>
+                        <th>Avg Auton</th>
+                        <th>Avg Teleop</th>
+                        <th>Avg Endgame</th>
+                        <th>Total Avg</th>
+                    </tr>
+                </thead>
+                <tbody id="matchTableBody"></tbody>
+            </table>
+        </div>
+
+        <h2 style="margin-top: 30px;">Pit Scouting Data</h2>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Hopper</th>
+                        <th>Shooter</th>
+                        <th>Auton Routes</th>
+                        <th>Expected Auton</th>
+                        <th>Trench / Bump</th>
+                    </tr>
+                </thead>
+                <tbody id="pitTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SYNC / QR TAB -->
+    <div id="syncTab" class="tab-content">
+        <h2>Transfer Data via QR</h2>
+        <p>Generate a QR code of your collected data to be scanned by the lead scouter.</p>
+        
+        <button class="action-btn secondary-btn" onclick="generateQR()">Generate Data QR Code</button>
+        <div id="qrcode-container"></div>
+        <button id="downloadBtn" class="action-btn" style="display:none;" onclick="downloadQR()">Save QR as PNG</button>
+        
+        <hr style="margin: 30px 0;">
+        
+        <h2>Import Data</h2>
+        <p>If you used a QR scanner app, paste the copied text payload here to merge it with this device.</p>
+        <textarea id="importPayload" rows="4" placeholder="Paste JSON data here..."></textarea>
+        <button class="action-btn secondary-btn" onclick="importData()">Merge Imported Data</button>
+    </div>
+</div>
+
+<script>
+    // Tab Logic
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+        if(tabId === 'viewTab') renderTables();
+    }
+
+    // Form Submissions
+    document.getElementById('matchForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = JSON.parse(localStorage.getItem('frcMatch')) || [];
+        data.push({
+            t: Number(document.getElementById('m_team').value),
+            m: Number(document.getElementById('m_match').value),
+            a: Number(document.getElementById('m_auton').value),
+            tl: Number(document.getElementById('m_teleop').value),
+            e: Number(document.getElementById('m_endgame').value),
+            r: Number(document.getElementById('m_rating').value),
+            n: document.getElementById('m_notes').value
+        });
+        localStorage.setItem('frcMatch', JSON.stringify(data));
+        alert('Match saved!');
+        this.reset();
+        document.getElementById('m_rating').value = "3";
+    });
+
+    document.getElementById('pitForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const data = JSON.parse(localStorage.getItem('frcPit')) || [];
+        // Remove old entry for this team if it exists to update it
+        const teamNum = Number(document.getElementById('p_team').value);
+        const filteredData = data.filter(d => d.t !== teamNum);
+        
+        filteredData.push({
+            t: teamNum,
+            h: Number(document.getElementById('p_hopper').value),
+            s: document.getElementById('p_shooter').value,
+            ar: document.getElementById('p_routes').value,
+            aa: Number(document.getElementById('p_avgAuton').value),
+            tr: document.getElementById('p_trench').checked,
+            b: document.getElementById('p_bump').checked
+        });
+        localStorage.setItem('frcPit', JSON.stringify(filteredData));
+        alert('Pit data saved!');
+        this.reset();
+    });
+
+    // Render Tables
+    function renderTables() {
+        const matches = JSON.parse(localStorage.getItem('frcMatch')) || [];
+        const pits = JSON.parse(localStorage.getItem('frcPit')) || [];
+        
+        // Match Table Averages
+        const grouped = {};
+        matches.forEach(m => {
+            if (!grouped[m.t]) grouped[m.t] = { count: 0, auton: 0, teleop: 0, endgame: 0 };
+            grouped[m.t].count++;
+            grouped[m.t].auton += m.a;
+            grouped[m.t].teleop += m.tl;
+            grouped[m.t].endgame += m.e;
+        });
+
+        let matchHtml = '';
+        Object.keys(grouped).sort((a,b) => a-b).forEach(team => {
+            const g = grouped[team];
+            const avgA = (g.auton / g.count).toFixed(1);
+            const avgT = (g.teleop / g.count).toFixed(1);
+            const avgE = (g.endgame / g.count).toFixed(1);
+            const total = (Number(avgA) + Number(avgT) + Number(avgE)).toFixed(1);
+            matchHtml += `<tr><td><strong>${team}</strong></td><td>${g.count}</td><td>${avgA}</td><td>${avgT}</td><td>${avgE}</td><td><strong>${total}</strong></td></tr>`;
+        });
+        document.getElementById('matchTableBody').innerHTML = matchHtml || '<tr><td colspan="6">No match data</td></tr>';
+
+        // Pit Table
+        let pitHtml = '';
+        pits.sort((a,b) => a.t - b.t).forEach(p => {
+            pitHtml += `<tr><td><strong>${p.t}</strong></td><td>${p.h}</td><td>${p.s}</td><td>${p.ar}</td><td>${p.aa}</td><td>${p.tr ? 'Yes':'No'} / ${p.b ? 'Yes':'No'}</td></tr>`;
+        });
+        document.getElementById('pitTableBody').innerHTML = pitHtml || '<tr><td colspan="6">No pit data</td></tr>';
+    }
+
+    // QR Code Generation & Sync
+    let currentQR = null;
+
+    function generateQR() {
+        const matches = JSON.parse(localStorage.getItem('frcMatch')) || [];
+        const pits = JSON.parse(localStorage.getItem('frcPit')) || [];
+        
+        // Combine into a compressed payload object
+        const payload = JSON.stringify({ m: matches, p: pits });
+        
+        const container = document.getElementById('qrcode-container');
+        container.innerHTML = ''; // Clear old QR
+        
+        if (payload.length > 2500) {
+            alert("Warning: Data is getting very large. The QR code may be difficult for some cameras to read.");
+        }
+
+        currentQR = new QRCode(container, {
+            text: payload,
+            width: 300,
+            height: 300,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.L // Low error correction to allow more data
+        });
+        
+        document.getElementById('downloadBtn').style.display = 'block';
+    }
+
+    function downloadQR() {
+        // qrcode.js renders to a canvas element inside the container
+        const canvas = document.querySelector('#qrcode-container canvas');
+        if (canvas) {
+            const url = canvas.toDataURL("image/png");
+            const a = document.createElement('a');
+            a.download = `FRC_ScoutData_${new Date().getTime()}.png`;
+            a.href = url;
+            a.click();
+        } else {
+            alert("Could not generate image. Try generating the QR code again.");
+        }
+    }
+
+    function importData() {
+        try {
+            const text = document.getElementById('importPayload').value;
+            const imported = JSON.parse(text);
+            
+            if (imported.m && Array.isArray(imported.m)) {
+                const existingM = JSON.parse(localStorage.getItem('frcMatch')) || [];
+                localStorage.setItem('frcMatch', JSON.stringify(existingM.concat(imported.m)));
+            }
+            if (imported.p && Array.isArray(imported.p)) {
+                const existingP = JSON.parse(localStorage.getItem('frcPit')) || [];
+                // Simple concat for pit data. In a production app, you might want logic to overwrite old team data.
+                localStorage.setItem('frcPit', JSON.stringify(existingP.concat(imported.p)));
+            }
+            
+            alert("Data merged successfully!");
+            document.getElementById('importPayload').value = '';
+        } catch (e) {
+            alert("Invalid data format. Please check the pasted text.");
+        }
+    }
+</script>
+
+</body>
+</html>
