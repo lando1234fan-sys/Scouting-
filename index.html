@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FRC Scouting Pro</title>
-    <!-- Lightweight QR Code Library -->
+    <title>FRC Scouting Pro Max</title>
+    <!-- QR Code Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- HTML5 QR Code Scanner -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; background: #f4f4f9; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
         
         .tabs { display: flex; background: #2c3e50; flex-wrap: wrap; }
-        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: white; font-size: 15px; cursor: pointer; min-width: 100px; }
+        .tab-btn { flex: 1; padding: 12px; background: none; border: none; color: white; font-size: 14px; cursor: pointer; min-width: 100px; }
         .tab-btn:hover { background: #34495e; }
         .tab-btn.active { background: #3498db; font-weight: bold; }
         
@@ -19,15 +22,16 @@
         .tab-content.active { display: block; }
         
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
         input[type="number"], input[type="text"], textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .checkbox-group { display: flex; gap: 15px; align-items: center; }
-        .checkbox-group label { font-weight: normal; display: flex; align-items: center; gap: 5px; }
+        .checkbox-group, .radio-group { display: flex; gap: 15px; align-items: center; margin-bottom: 15px;}
+        .radio-group label { font-weight: normal; display: flex; align-items: center; gap: 5px; }
         
         button.action-btn { background: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 10px; }
         button.action-btn:hover { background: #2ecc71; }
         button.secondary-btn { background: #3498db; }
         button.secondary-btn:hover { background: #2980b9; }
+        button.small-btn { background: #e67e22; padding: 5px 10px; font-size: 12px; margin: 2px; border-radius: 3px; color: white; border: none; cursor: pointer; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
@@ -35,6 +39,14 @@
         .table-responsive { overflow-x: auto; }
         
         #qrcode-container { display: flex; justify-content: center; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; }
+        #reader { width: 100%; max-width: 500px; margin: 0 auto; display: none; }
+        
+        .hopper-assist { background: #e8f8f5; border-left: 4px solid #1abc9c; padding: 10px; margin-bottom: 15px; display: none; border-radius: 4px; }
+        .hopper-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .hopper-row strong { width: 80px; font-size: 13px; }
+        
+        .note-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .note-content { background: white; padding: 20px; border-radius: 8px; width: 80%; max-width: 400px; }
     </style>
 </head>
 <body>
@@ -43,7 +55,8 @@
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('matchTab')">Match Scout</button>
         <button class="tab-btn" onclick="switchTab('pitTab')">Pit Scout</button>
-        <button class="tab-btn" onclick="switchTab('viewTab')">View Data</button>
+        <button class="tab-btn" onclick="switchTab('teamTab')">Team View</button>
+        <button class="tab-btn" onclick="switchTab('allMatchesTab')">Match View</button>
         <button class="tab-btn" onclick="switchTab('syncTab')">Sync/QR</button>
     </div>
 
@@ -51,13 +64,46 @@
     <div id="matchTab" class="tab-content active">
         <h2>Match Scouting</h2>
         <form id="matchForm">
-            <div class="form-group"><label>Team Number</label><input type="number" id="m_team" required></div>
-            <div class="form-group"><label>Match Number</label><input type="number" id="m_match" required></div>
-            
             <div style="display:flex; gap:10px;">
-                <div class="form-group" style="flex:1;"><label>Auton Score</label><input type="number" id="m_auton" required></div>
-                <div class="form-group" style="flex:1;"><label>Teleop Score</label><input type="number" id="m_teleop" required></div>
-                <div class="form-group" style="flex:1;"><label>Endgame Score</label><input type="number" id="m_endgame" required></div>
+                <div class="form-group" style="flex:1;"><label>Team Number</label><input type="number" id="m_team" required></div>
+                <div class="form-group" style="flex:1;"><label>Match Number</label><input type="number" id="m_match" required></div>
+            </div>
+
+            <div class="radio-group">
+                <label style="color: #c0392b;"><strong>Alliance:</strong></label>
+                <label><input type="radio" name="m_alliance" value="Red" required> Red</label>
+                <label style="color: #2980b9; margin-left: 10px;"><input type="radio" name="m_alliance" value="Blue"> Blue</label>
+            </div>
+            
+            <div class="form-group"><label>Start Position</label><input type="text" id="m_startPos" placeholder="e.g., Left side of Initiation Line" required></div>
+
+            <!-- Dynamic Hopper Assist Menu -->
+            <div id="hopperAssist" class="hopper-assist">
+                <div style="margin-bottom: 5px;"><strong>Pit Data Active:</strong> Max Hopper Capacity is <span id="ha_max"></span>. Click to add to scores.</div>
+                <div class="hopper-row">
+                    <strong>Auton:</strong>
+                    <button type="button" class="small-btn" onclick="addScore('m_auton', 1)">Max</button>
+                    <button type="button" class="small-btn" onclick="addScore('m_auton', 0.5)">1/2</button>
+                    <button type="button" class="small-btn" onclick="addScore('m_auton', 0.25)">1/4</button>
+                </div>
+                <div class="hopper-row">
+                    <strong>Teleop:</strong>
+                    <button type="button" class="small-btn" onclick="addScore('m_teleop', 1)">Max</button>
+                    <button type="button" class="small-btn" onclick="addScore('m_teleop', 0.5)">1/2</button>
+                    <button type="button" class="small-btn" onclick="addScore('m_teleop', 0.25)">1/4</button>
+                </div>
+                <div class="hopper-row">
+                    <strong>Endgame:</strong>
+                    <button type="button" class="small-btn" onclick="addScore('m_endgame', 1)">Max</button>
+                    <button type="button" class="small-btn" onclick="addScore('m_endgame', 0.5)">1/2</button>
+                    <button type="button" class="small-btn" onclick="addScore('m_endgame', 0.25)">1/4</button>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;"><label>Auton Score</label><input type="number" id="m_auton" value="0" required></div>
+                <div class="form-group" style="flex:1;"><label>Teleop Score</label><input type="number" id="m_teleop" value="0" required></div>
+                <div class="form-group" style="flex:1;"><label>Endgame Score</label><input type="number" id="m_endgame" value="0" required></div>
             </div>
 
             <div class="form-group">
@@ -82,24 +128,33 @@
         <form id="pitForm">
             <div class="form-group"><label>Team Number</label><input type="number" id="p_team" required></div>
             <div class="form-group"><label>Max Hopper Capacity</label><input type="number" id="p_hopper" required></div>
-            <div class="form-group"><label>Shooter Type</label><input type="text" id="p_shooter" placeholder="e.g. Flywheel, Catapult" required></div>
-            <div class="form-group"><label>Auton Route(s)</label><input type="text" id="p_routes" placeholder="e.g. Center to Trench" required></div>
+            <div class="form-group"><label>Shooter Type</label><input type="text" id="p_shooter" required></div>
+            <div class="form-group"><label>Auton Route(s)</label><input type="text" id="p_routes" required></div>
             <div class="form-group"><label>Avg Expected Auton Score</label><input type="number" id="p_avgAuton" required></div>
             
             <div class="form-group checkbox-group">
                 <label><input type="checkbox" id="p_trench"> Can go under trench?</label>
                 <label><input type="checkbox" id="p_bump"> Can go over bump?</label>
             </div>
-            
             <button type="submit" class="action-btn">Save Pit Data</button>
         </form>
     </div>
 
-    <!-- VIEW DATA TAB -->
-    <div id="viewTab" class="tab-content">
-        <h2>Team Match Averages</h2>
+    <!-- TEAM VIEW TAB -->
+    <div id="teamTab" class="tab-content">
+        <h2>Team Averages</h2>
+        <div class="form-group">
+            <label>Select Team to Inspect</label>
+            <select id="teamSelect" onchange="renderSpecificTeam()">
+                <option value="">-- Choose a Team --</option>
+            </select>
+        </div>
+        <div id="teamStatsContainer" style="display:none; background:#f8f9fa; padding:15px; border-radius:5px; margin-bottom:15px;">
+            <!-- Rendered via JS -->
+        </div>
+        
         <div class="table-responsive">
-            <table>
+            <table id="teamAveragesTable">
                 <thead>
                     <tr>
                         <th>Team</th>
@@ -110,43 +165,59 @@
                         <th>Total Avg</th>
                     </tr>
                 </thead>
-                <tbody id="matchTableBody"></tbody>
+                <tbody id="teamAveragesBody"></tbody>
             </table>
         </div>
+    </div>
 
-        <h2 style="margin-top: 30px;">Pit Scouting Data</h2>
+    <!-- MATCH VIEW TAB -->
+    <div id="allMatchesTab" class="tab-content">
+        <h2>All Individual Matches</h2>
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
+                        <th>Match</th>
                         <th>Team</th>
-                        <th>Hopper</th>
-                        <th>Shooter</th>
-                        <th>Auton Routes</th>
-                        <th>Expected Auton</th>
-                        <th>Trench / Bump</th>
+                        <th>Alliance</th>
+                        <th>Start Pos</th>
+                        <th>Auto</th>
+                        <th>Tele</th>
+                        <th>End</th>
+                        <th>Notes</th>
                     </tr>
                 </thead>
-                <tbody id="pitTableBody"></tbody>
+                <tbody id="allMatchesBody"></tbody>
             </table>
         </div>
     </div>
 
     <!-- SYNC / QR TAB -->
     <div id="syncTab" class="tab-content">
-        <h2>Transfer Data via QR</h2>
-        <p>Generate a QR code of your collected data to be scanned by the lead scouter.</p>
+        <h2>Transfer Data</h2>
         
-        <button class="action-btn secondary-btn" onclick="generateQR()">Generate Data QR Code</button>
+        <button class="action-btn secondary-btn" onclick="generateQR()">1. Generate Data QR Code (Export)</button>
         <div id="qrcode-container"></div>
-        <button id="downloadBtn" class="action-btn" style="display:none;" onclick="downloadQR()">Save QR as PNG</button>
         
         <hr style="margin: 30px 0;">
         
-        <h2>Import Data</h2>
-        <p>If you used a QR scanner app, paste the copied text payload here to merge it with this device.</p>
-        <textarea id="importPayload" rows="4" placeholder="Paste JSON data here..."></textarea>
-        <button class="action-btn secondary-btn" onclick="importData()">Merge Imported Data</button>
+        <h2>Import Data (Camera Scanner)</h2>
+        <button class="action-btn" style="background:#8e44ad;" onclick="startScanner()">2. Start Camera Scanner</button>
+        <div id="reader"></div>
+        
+        <p style="text-align:center; margin:10px 0;">OR</p>
+        
+        <textarea id="importPayload" rows="3" placeholder="Paste manual JSON data here..."></textarea>
+        <button class="action-btn secondary-btn" onclick="importData()">3. Merge Imported Data</button>
+    </div>
+</div>
+
+<!-- Notes Modal -->
+<div id="noteModal" class="note-modal" onclick="closeNote()">
+    <div class="note-content" onclick="event.stopPropagation()">
+        <h3 id="noteModalTitle" style="margin-top:0;">Match Notes</h3>
+        <p id="noteModalText"></p>
+        <button class="action-btn secondary-btn" onclick="closeNote()">Close</button>
     </div>
 </div>
 
@@ -157,16 +228,45 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         event.currentTarget.classList.add('active');
-        if(tabId === 'viewTab') renderTables();
+        
+        if(tabId === 'teamTab') renderTeamTab();
+        if(tabId === 'allMatchesTab') renderAllMatchesTab();
+    }
+
+    // Hopper Assist Logic
+    let currentHopperMax = 0;
+    document.getElementById('m_team').addEventListener('input', function(e) {
+        const teamNum = Number(this.value);
+        const pits = JSON.parse(localStorage.getItem('frcPit')) || [];
+        const pitData = pits.find(p => p.t === teamNum);
+        
+        if (pitData && pitData.h > 0) {
+            currentHopperMax = pitData.h;
+            document.getElementById('ha_max').innerText = currentHopperMax;
+            document.getElementById('hopperAssist').style.display = 'block';
+        } else {
+            document.getElementById('hopperAssist').style.display = 'none';
+        }
+    });
+
+    function addScore(inputId, multiplier) {
+        const amountToAdd = Math.round(currentHopperMax * multiplier);
+        const input = document.getElementById(inputId);
+        const currentVal = Number(input.value) || 0;
+        input.value = currentVal + amountToAdd;
     }
 
     // Form Submissions
     document.getElementById('matchForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const data = JSON.parse(localStorage.getItem('frcMatch')) || [];
+        const alliance = document.querySelector('input[name="m_alliance"]:checked').value;
+        
         data.push({
             t: Number(document.getElementById('m_team').value),
             m: Number(document.getElementById('m_match').value),
+            al: alliance,
+            sp: document.getElementById('m_startPos').value,
             a: Number(document.getElementById('m_auton').value),
             tl: Number(document.getElementById('m_teleop').value),
             e: Number(document.getElementById('m_endgame').value),
@@ -175,14 +275,19 @@
         });
         localStorage.setItem('frcMatch', JSON.stringify(data));
         alert('Match saved!');
-        this.reset();
-        document.getElementById('m_rating').value = "3";
+        
+        // Reset specific fields but keep match number/alliance to make next entry faster
+        document.getElementById('m_team').value = '';
+        document.getElementById('m_auton').value = '0';
+        document.getElementById('m_teleop').value = '0';
+        document.getElementById('m_endgame').value = '0';
+        document.getElementById('m_notes').value = '';
+        document.getElementById('hopperAssist').style.display = 'none';
     });
 
     document.getElementById('pitForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const data = JSON.parse(localStorage.getItem('frcPit')) || [];
-        // Remove old entry for this team if it exists to update it
         const teamNum = Number(document.getElementById('p_team').value);
         const filteredData = data.filter(d => d.t !== teamNum);
         
@@ -200,13 +305,13 @@
         this.reset();
     });
 
-    // Render Tables
-    function renderTables() {
+    // Render Views
+    function renderTeamTab() {
         const matches = JSON.parse(localStorage.getItem('frcMatch')) || [];
-        const pits = JSON.parse(localStorage.getItem('frcPit')) || [];
-        
-        // Match Table Averages
+        const select = document.getElementById('teamSelect');
         const grouped = {};
+        
+        // Build Select and Averages Table
         matches.forEach(m => {
             if (!grouped[m.t]) grouped[m.t] = { count: 0, auton: 0, teleop: 0, endgame: 0 };
             grouped[m.t].count++;
@@ -215,66 +320,101 @@
             grouped[m.t].endgame += m.e;
         });
 
-        let matchHtml = '';
+        // Populate Select
+        select.innerHTML = '<option value="">-- Choose a Team --</option>';
+        Object.keys(grouped).sort((a,b) => a-b).forEach(team => {
+            select.innerHTML += `<option value="${team}">Team ${team}</option>`;
+        });
+
+        // Populate Table
+        let html = '';
         Object.keys(grouped).sort((a,b) => a-b).forEach(team => {
             const g = grouped[team];
             const avgA = (g.auton / g.count).toFixed(1);
             const avgT = (g.teleop / g.count).toFixed(1);
             const avgE = (g.endgame / g.count).toFixed(1);
             const total = (Number(avgA) + Number(avgT) + Number(avgE)).toFixed(1);
-            matchHtml += `<tr><td><strong>${team}</strong></td><td>${g.count}</td><td>${avgA}</td><td>${avgT}</td><td>${avgE}</td><td><strong>${total}</strong></td></tr>`;
+            html += `<tr><td><strong>${team}</strong></td><td>${g.count}</td><td>${avgA}</td><td>${avgT}</td><td>${avgE}</td><td><strong>${total}</strong></td></tr>`;
         });
-        document.getElementById('matchTableBody').innerHTML = matchHtml || '<tr><td colspan="6">No match data</td></tr>';
-
-        // Pit Table
-        let pitHtml = '';
-        pits.sort((a,b) => a.t - b.t).forEach(p => {
-            pitHtml += `<tr><td><strong>${p.t}</strong></td><td>${p.h}</td><td>${p.s}</td><td>${p.ar}</td><td>${p.aa}</td><td>${p.tr ? 'Yes':'No'} / ${p.b ? 'Yes':'No'}</td></tr>`;
-        });
-        document.getElementById('pitTableBody').innerHTML = pitHtml || '<tr><td colspan="6">No pit data</td></tr>';
+        document.getElementById('teamAveragesBody').innerHTML = html || '<tr><td colspan="6">No data yet</td></tr>';
     }
 
-    // QR Code Generation & Sync
-    let currentQR = null;
-
-    function generateQR() {
-        const matches = JSON.parse(localStorage.getItem('frcMatch')) || [];
-        const pits = JSON.parse(localStorage.getItem('frcPit')) || [];
+    function renderSpecificTeam() {
+        const teamNum = Number(document.getElementById('teamSelect').value);
+        const container = document.getElementById('teamStatsContainer');
         
-        // Combine into a compressed payload object
-        const payload = JSON.stringify({ m: matches, p: pits });
-        
-        const container = document.getElementById('qrcode-container');
-        container.innerHTML = ''; // Clear old QR
-        
-        if (payload.length > 2500) {
-            alert("Warning: Data is getting very large. The QR code may be difficult for some cameras to read.");
+        if (!teamNum) {
+            container.style.display = 'none';
+            document.getElementById('teamAveragesTable').style.display = 'table';
+            return;
         }
 
-        currentQR = new QRCode(container, {
+        const pits = JSON.parse(localStorage.getItem('frcPit')) || [];
+        const pitData = pits.find(p => p.t === teamNum);
+        
+        let pitHtml = pitData ? `
+            <strong>Pit Data:</strong> Max Hopper: ${pitData.h} | Shooter: ${pitData.s} | Trench: ${pitData.tr?'Yes':'No'} | Bump: ${pitData.b?'Yes':'No'}
+        ` : '<em>No pit data found for this team.</em>';
+
+        container.innerHTML = `<h3>Team ${teamNum} Overview</h3><p>${pitHtml}</p>`;
+        container.style.display = 'block';
+        document.getElementById('teamAveragesTable').style.display = 'none';
+    }
+
+    function renderAllMatchesTab() {
+        const matches = JSON.parse(localStorage.getItem('frcMatch')) || [];
+        let html = '';
+        
+        // Sort by match number then team
+        matches.sort((a,b) => a.m - b.m || a.t - b.t).forEach((m, idx) => {
+            const hasNotes = m.n && m.n.trim() !== '';
+            const noteBtn = hasNotes ? `<button class="small-btn" onclick="openNote(${idx})">View Notes</button>` : '';
+            const alColor = m.al === 'Red' ? '#c0392b' : '#2980b9';
+            
+            html += `<tr>
+                <td><strong>Q${m.m}</strong></td>
+                <td><strong>${m.t}</strong></td>
+                <td style="color:${alColor}; font-weight:bold;">${m.al}</td>
+                <td>${m.sp || '-'}</td>
+                <td>${m.a}</td>
+                <td>${m.tl}</td>
+                <td>${m.e}</td>
+                <td>${noteBtn}</td>
+            </tr>`;
+        });
+        document.getElementById('allMatchesBody').innerHTML = html || '<tr><td colspan="8">No matches recorded</td></tr>';
+    }
+
+    // Notes Modal
+    function openNote(matchIndex) {
+        const matches = JSON.parse(localStorage.getItem('frcMatch')) || [];
+        // Re-sort identically to ensure index matches
+        matches.sort((a,b) => a.m - b.m || a.t - b.t); 
+        const m = matches[matchIndex];
+        
+        document.getElementById('noteModalTitle').innerText = `Team ${m.t} - Match ${m.m}`;
+        document.getElementById('noteModalText').innerText = m.n;
+        document.getElementById('noteModal').style.display = 'flex';
+    }
+    function closeNote() {
+        document.getElementById('noteModal').style.display = 'none';
+    }
+
+    // QR & Sync Logic
+    function generateQR() {
+        const m = JSON.parse(localStorage.getItem('frcMatch')) || [];
+        const p = JSON.parse(localStorage.getItem('frcPit')) || [];
+        const payload = JSON.stringify({ m, p });
+        
+        const container = document.getElementById('qrcode-container');
+        container.innerHTML = ''; 
+        
+        new QRCode(container, {
             text: payload,
             width: 300,
             height: 300,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.L // Low error correction to allow more data
+            correctLevel: QRCode.CorrectLevel.L
         });
-        
-        document.getElementById('downloadBtn').style.display = 'block';
-    }
-
-    function downloadQR() {
-        // qrcode.js renders to a canvas element inside the container
-        const canvas = document.querySelector('#qrcode-container canvas');
-        if (canvas) {
-            const url = canvas.toDataURL("image/png");
-            const a = document.createElement('a');
-            a.download = `FRC_ScoutData_${new Date().getTime()}.png`;
-            a.href = url;
-            a.click();
-        } else {
-            alert("Could not generate image. Try generating the QR code again.");
-        }
     }
 
     function importData() {
@@ -282,21 +422,38 @@
             const text = document.getElementById('importPayload').value;
             const imported = JSON.parse(text);
             
-            if (imported.m && Array.isArray(imported.m)) {
+            if (imported.m) {
                 const existingM = JSON.parse(localStorage.getItem('frcMatch')) || [];
                 localStorage.setItem('frcMatch', JSON.stringify(existingM.concat(imported.m)));
             }
-            if (imported.p && Array.isArray(imported.p)) {
+            if (imported.p) {
                 const existingP = JSON.parse(localStorage.getItem('frcPit')) || [];
-                // Simple concat for pit data. In a production app, you might want logic to overwrite old team data.
                 localStorage.setItem('frcPit', JSON.stringify(existingP.concat(imported.p)));
             }
-            
             alert("Data merged successfully!");
             document.getElementById('importPayload').value = '';
         } catch (e) {
-            alert("Invalid data format. Please check the pasted text.");
+            alert("Invalid data format.");
         }
+    }
+
+    // HTML5 QR Scanner
+    let html5QrcodeScanner;
+    function startScanner() {
+        document.getElementById('reader').style.display = 'block';
+        if(html5QrcodeScanner) return; // already running
+
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+            
+        html5QrcodeScanner.render((decodedText) => {
+            document.getElementById('importPayload').value = decodedText;
+            html5QrcodeScanner.clear(); // Stop scanner on success
+            document.getElementById('reader').style.display = 'none';
+            alert("QR Code scanned successfully! Click 'Merge Imported Data' to save.");
+        }, (errorMessage) => {
+            // Background scanning errors, ignore
+        });
     }
 </script>
 
