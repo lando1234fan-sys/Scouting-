@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FRC Scouting Pro Max</title>
+    <title>Shambots Scouting</title>
     <!-- QR Code Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- HTML5 QR Code Scanner -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; background: #f4f4f9; color: #333; }
-        .container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+        body { font-family:  BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; background: #000000; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: rgb(168, 186, 249); border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
         
         /* Tabs */
         .tabs { display: flex; background: #2c3e50; flex-wrap: wrap; }
@@ -57,17 +57,41 @@
         
         .note-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
         .note-content { background: white; padding: 20px; border-radius: 8px; width: 80%; max-width: 400px; }
+
+        .normal_buttons {
+            background: #e8f8f5; border-left: 4px solid #1abc9c; padding: 10px; margin-bottom: 15px; display: none; border-radius: 4px; 
+            display: flex; align-items: center; gap: 10px; margin-bottom: 5px; flex-wrap: wrap;
+        }
+
+        .view-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .view-heading h2 {
+            margin: 0;
+        }
+
+        .view-heading img {
+            display: block;
+            margin-left: auto;
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('matchTab')">Match Scout</button>
-        <button class="tab-btn" onclick="switchTab('pitTab')">Pit Scout</button>
-        <button class="tab-btn" onclick="switchTab('teamTab')">Team View</button>
-        <button class="tab-btn" onclick="switchTab('allMatchesTab')">Match View</button>
-        <button class="tab-btn" onclick="switchTab('syncTab')">Sync/QR</button>
+        <button class="tab-btn active" onclick="switchTab(event, 'matchTab')">Match Scout</button>
+        <button class="tab-btn" onclick="switchTab(event, 'pitTab')">Pit Scout</button>
+        <button class="tab-btn" onclick="switchTab(event, 'teamTab')">Team View</button>
+        <button class="tab-btn" onclick="switchTab(event, 'allMatchesTab')">Match View</button>
+        <button class="tab-btn" onclick="switchTab(event, 'syncTab')">Sync/QR</button>
     </div>
 
     <!-- MATCH SCOUTING TAB -->
@@ -76,19 +100,26 @@
             
             <!-- STEP 1: SETUP -->
             <div id="step-setup" class="wizard-step active">
-                <h2>Phase 1: Setup</h2>
+                <div class="view-heading"><h2>Phase 1: Setup</h2><img src="CCrest.png" alt="Scouting team crest"></div>
                 <div style="display:flex; gap:10px;">
-                    <div class="form-group" style="flex:1;"><label>Team Number</label><input type="number" id="m_team" required></div>
-                    <div class="form-group" style="flex:1;"><label>Match Number</label><input type="number" id="m_match" required></div>
+                    <div class="form-group" style="flex:1;"><label>Team Number</label><input type="number" id="m_team" min="0" required></div>
+                    <div class="form-group" style="flex:1;"><label>Match Number</label><input type="number" id="m_match" min="0" required></div>
                 </div>
 
                 <div class="radio-group">
-                    <label style="color: #c0392b;"><strong>Alliance:</strong></label>
-                    <label><input type="radio" name="m_alliance" value="Red" required> Red</label>
-                    <label style="color: #2980b9; margin-left: 10px;"><input type="radio" name="m_alliance" value="Blue"> Blue</label>
+                    <label><strong>Alliance:</strong></label>
+                    <label style="color: #c0392b;"><input type="radio" name="m_alliance" value="Red" required> Red</label>
+                    <label style="color: #2929b9"; margin-left: 10px;"><input type="radio" name="m_alliance" value="Blue"> Blue</label>
                 </div>
                 
-                <div class="form-group"><label>Start Position</label><input type="text" id="m_startPos" placeholder="e.g., Left side of Initiation Line" required></div>
+                <div class="form-group"><label>Start Position</label><select id="m_startpos" required>
+                        <option value="1">1 - Poor</option>
+                        <option value="2">2 - Below Average</option>
+                        <option value="3" selected>3 - Average</option>
+                        <option value="4">4 - Good</option>
+                        <option value="5">5 - Excellent</option>
+                        <option value="6">Did Not Start</option>
+                    </select></div>
                 
                 <div class="wizard-nav">
                     <button type="button" class="action-btn" onclick="nextWizardStep('step-setup', 'step-auton')">Next (Auton) &rarr;</button>
@@ -97,19 +128,43 @@
 
             <!-- STEP 2: AUTON -->
             <div id="step-auton" class="wizard-step">
-                <h2>Phase 2: Autonomous</h2>
+                <div class="view-heading"><h2>Phase 2: Autonomous</h2><img src="CCrest.png" alt="Scouting team crest"></div>
                 
                 <div id="autonAssist" class="hopper-assist">
-                    <div style="margin-bottom: 5px;"><strong>Pit Data Active:</strong> Max Hopper is <span class="ha_max_display"></span>.</div>
+                    <div style="margin-bottom: 5px;"> Max Hopper is <span class="ha_max_display"></span>.</div>
                     <div class="hopper-row">
-                        <strong>Auton Add:</strong>
-                        <button type="button" class="small-btn" onclick="addScore('m_auton', 1)">Max</button>
-                        <button type="button" class="small-btn" onclick="addScore('m_auton', 0.5)">1/2</button>
-                        <button type="button" class="small-btn" onclick="addScore('m_auton', 0.25)">1/4</button>
+                        <div>
+                            <strong>Add:</strong>
+                            <button type="button" class="small-btn" onclick="addScore('m_auton', 1)">Max</button>
+                            <button type="button" class="small-btn" onclick="addScore('m_auton', 0.5)">1/2</button>
+                            <button type="button" class="small-btn" onclick="addScore('m_auton', 0.25)">1/4</button>
+                        </div>
+                        <div>
+                            <strong>Subtract:</strong>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_auton', 1)">Max</button>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_auton', 0.5)">1/2</button>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_auton', 0.25)">1/4</button>
+                        </div>
                     </div>
                 </div>
+                <div class="normal_buttons">
+                    <div style = "margin: 10;">
+                            <strong>Add:</strong>
+                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 20)">add 20</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 10)">add 10</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 2)">add 20</button>
+                        </div>
+                    <div style ="margin: 10;">
+                            <strong>Subtract:</strong>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 20)">subtract 20</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 10)">subtract 10</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 2)">subtract 20</button>
+                        </div>
+                        
 
-                <div class="form-group"><label>Auton Score</label><input type="number" id="m_auton" value="0" required></div>
+                    </div>
+
+                <div class="form-group"><label>Auton Score</label><input type="number" id="m_auton" value="0" min="0" required></div>
                 
                 <div class="wizard-nav">
                     <button type="button" class="secondary-btn" onclick="changeWizardStep('step-setup')">&larr; Back</button>
@@ -119,19 +174,42 @@
 
             <!-- STEP 3: TELEOP -->
             <div id="step-teleop" class="wizard-step">
-                <h2>Phase 3: Teleop</h2>
+                <div class="view-heading"><h2>Phase 3: Teleop</h2><img src="CCrest.png" alt="Scouting team crest"></div>
 
                 <div id="teleopAssist" class="hopper-assist">
-                    <div style="margin-bottom: 5px;"><strong>Pit Data Active:</strong> Max Hopper is <span class="ha_max_display"></span>.</div>
+                    <div style="margin-bottom: 5px;"> Max Hopper is <span class="ha_max_display"></span>.</div>
                     <div class="hopper-row">
-                        <strong>Teleop Add:</strong>
-                        <button type="button" class="small-btn" onclick="addScore('m_teleop', 1)">Max</button>
-                        <button type="button" class="small-btn" onclick="addScore('m_teleop', 0.5)">1/2</button>
-                        <button type="button" class="small-btn" onclick="addScore('m_teleop', 0.25)">1/4</button>
+                        <div>
+                            <strong>Add:</strong>
+                            <button type="button" class="small-btn" onclick="addScore('m_teleop', 1)">Max</button>
+                            <button type="button" class="small-btn" onclick="addScore('m_teleop', 0.5)">1/2</button>
+                            <button type="button" class="small-btn" onclick="addScore('m_teleop', 0.25)">1/4</button>
+                        </div>
+                        <div>
+                            <strong>Subtract:</strong>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_teleop', 1)">Max</button>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_teleop', 0.5)">1/2</button>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_teleop', 0.25)">1/4</button>
+                        </div>
                     </div>
                 </div>
+                <div class="normal_buttons">
+                    <div style = "margin: 10;">
+                            <strong>Add</strong>
+                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 20)">add 20</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 10)">add 10</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 2)">add 2</button>
+                        </div>
+                    <div style ="margin: 10;">
+                            <strong>Subtract</strong>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 20)">subtract 20</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 10)">subtract 10</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 2)">subtract 20</button>
+                        </div>
+                        
+                </div>
 
-                <div class="form-group"><label>Teleop Score</label><input type="number" id="m_teleop" value="0" required></div>
+                <div class="form-group"><label>Teleop Score</label><input type="number" id="m_teleop" value="0" min="0" required></div>
 
                 <div class="wizard-nav">
                     <button type="button" class="secondary-btn" onclick="changeWizardStep('step-auton')">&larr; Back</button>
@@ -141,28 +219,53 @@
 
             <!-- STEP 4: ENDGAME & SAVE -->
             <div id="step-endgame" class="wizard-step">
-                <h2>Phase 4: Endgame & Notes</h2>
+                <div class="view-heading"><h2>Phase 4: Endgame & Notes</h2><img src="CCrest.png" alt="Scouting team crest"></div>
 
                 <div id="endgameAssist" class="hopper-assist">
-                    <div style="margin-bottom: 5px;"><strong>Pit Data Active:</strong> Max Hopper is <span class="ha_max_display"></span>.</div>
+                    <div style="margin-bottom: 5px;"> Max Hopper is <span class="ha_max_display"></span>.</div>
                     <div class="hopper-row">
-                        <strong>Endgame Add:</strong>
-                        <button type="button" class="small-btn" onclick="addScore('m_endgame', 1)">Max</button>
-                        <button type="button" class="small-btn" onclick="addScore('m_endgame', 0.5)">1/2</button>
-                        <button type="button" class="small-btn" onclick="addScore('m_endgame', 0.25)">1/4</button>
+                        <div>
+                            <strong>Add:</strong>
+                            <button type="button" class="small-btn" onclick="addScore('m_endgame', 1)">Max</button>
+                            <button type="button" class="small-btn" onclick="addScore('m_endgame', 0.5)">1/2</button>
+                            <button type="button" class="small-btn" onclick="addScore('m_endgame', 0.25)">1/4</button>
+                        </div>
+                        <div>
+                            <strong>Subtract</strong>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_endgame', 1)">Max</button>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_endgame', 0.5)">1/2</button>
+                            <button type="button" class="small-btn" onclick="subtractScore('m_endgame', 0.25)">1/4</button>
+                        </div>
+
                     </div>
+                    
+                </div>
+                <div class="normal_buttons">
+                    <div style = "margin: 10;">
+                            <strong>Add</strong>
+                            <button type="button" class="small-btn" onclick="addAmount('m_endgame', 20)">+20</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_endgame', 10)">+10</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_endgame', 2)">+2</button>
+                        </div>
+                    <div style ="margin: 10;">
+                            <strong>Subtract</strong>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_endgame', 20)">-20</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_endgame', 10)">-10</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_endgame', 2)">-0</button>
+                        </div>
+                        
                 </div>
 
-                <div class="form-group"><label>Endgame Score</label><input type="number" id="m_endgame" value="0" required></div>
+                <div class="form-group"><label>Endgame Score</label><input type="number" id="m_endgame" value="0" min="0" required></div>
 
                 <div class="form-group">
                     <label>Overall Rating (1-5)</label>
                     <select id="m_rating" required>
-                        <option value="1">1 - Poor</option>
-                        <option value="2">2 - Below Average</option>
-                        <option value="3" selected>3 - Average</option>
-                        <option value="4">4 - Good</option>
-                        <option value="5">5 - Excellent</option>
+                        <option value="1">Left Bump</option>
+                        <option value="2">Left Trench</option>
+                        <option value="3" selected>Hub</option>
+                        <option value="4">Right Trench</option>
+                        <option value="5">Right Bump</option>
                     </select>
                 </div>
                 
@@ -179,13 +282,13 @@
 
     <!-- PIT SCOUTING TAB -->
     <div id="pitTab" class="tab-content">
-        <h2>Pit Scouting</h2>
+        <div class="view-heading"><h2>Pit Scouting</h2><img src="CCrest.png" alt="Scouting team crest"></div>
         <form id="pitForm">
-            <div class="form-group"><label>Team Number</label><input type="number" id="p_team" required></div>
-            <div class="form-group"><label>Max Hopper Capacity</label><input type="number" id="p_hopper" required></div>
+            <div class="form-group"><label>Team Number</label><input type="number" id="p_team" min="0" required></div>
+            <div class="form-group"><label>Max Hopper Capacity</label><input type="number" id="p_hopper" min="0" required></div>
             <div class="form-group"><label>Shooter Type</label><input type="text" id="p_shooter" required></div>
             <div class="form-group"><label>Auton Route(s)</label><input type="text" id="p_routes" required></div>
-            <div class="form-group"><label>Avg Expected Auton Score</label><input type="number" id="p_avgAuton" required></div>
+            <div class="form-group"><label>Avg Expected Auton Score</label><input type="number" id="p_avgAuton" min="0" required></div>
             
             <div class="form-group checkbox-group">
                 <label><input type="checkbox" id="p_trench"> Can go under trench?</label>
@@ -197,11 +300,11 @@
 
     <!-- TEAM VIEW TAB -->
     <div id="teamTab" class="tab-content">
-        <h2>Team Averages</h2>
+        <div class="view-heading"><h2>Team Averages</h2><img src="CCrest.png" alt="Scouting team crest"></div>
         <div class="form-group">
             <label>Select Team to Inspect</label>
             <select id="teamSelect" onchange="renderSpecificTeam()">
-                <option value="">-- Choose a Team --</option>
+                <option value="">All Teams</option>
             </select>
         </div>
         <div id="teamStatsContainer" style="display:none; background:#f8f9fa; padding:15px; border-radius:5px; margin-bottom:15px;"></div>
@@ -225,7 +328,7 @@
 
     <!-- MATCH VIEW TAB -->
     <div id="allMatchesTab" class="tab-content">
-        <h2>All Individual Matches</h2>
+        <div class="view-heading"><h2>All Individual Matches</h2><img src="CCrest.png" alt="Scouting team crest"></div>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -247,7 +350,7 @@
 
     <!-- SYNC / QR TAB -->
     <div id="syncTab" class="tab-content">
-        <h2>Transfer Data</h2>
+        <div class="view-heading"><h2>Transfer Data</h2><img src="CCrest.png" alt="Scouting team crest"></div>
         <button class="action-btn secondary-btn" onclick="generateQR()">1. Generate Data QR Code (Export)</button>
         <div id="qrcode-container"></div>
         <hr style="margin: 30px 0;">
@@ -271,7 +374,7 @@
 
 <script>
     // --- MAIN TAB LOGIC ---
-    function switchTab(tabId) {
+    function switchTab(event, tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
@@ -292,10 +395,9 @@
         if (currentStepId === 'step-setup') {
             const team = document.getElementById('m_team').value;
             const match = document.getElementById('m_match').value;
-            const start = document.getElementById('m_startPos').value;
             const alliance = document.querySelector('input[name="m_alliance"]:checked');
             
-            if (!team || !match || !start || !alliance) {
+            if (!team || !match || !alliance) {
                 alert("Please fill out all Setup fields before continuing.");
                 return;
             }
@@ -305,6 +407,16 @@
 
     // --- HOPPER ASSIST LOGIC ---
     let currentHopperMax = 0;
+
+    function clampNonNegative(input) {
+        if (input.value !== '' && Number(input.value) < 0) {
+            input.value = '0';
+        }
+    }
+
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', () => clampNonNegative(input));
+    });
     
     document.getElementById('m_team').addEventListener('input', function(e) {
         const teamNum = Number(this.value);
@@ -321,10 +433,12 @@
             document.getElementById('autonAssist').style.display = 'block';
             document.getElementById('teleopAssist').style.display = 'block';
             document.getElementById('endgameAssist').style.display = 'block';
+            document.querySelectorAll('.normal_buttons').forEach(el => { el.style.display = 'none'; });
         } else {
             document.getElementById('autonAssist').style.display = 'none';
             document.getElementById('teleopAssist').style.display = 'none';
             document.getElementById('endgameAssist').style.display = 'none';
+            document.querySelectorAll('.normal_buttons').forEach(el => { el.style.display = 'block'; });
         }
     });
 
@@ -332,7 +446,28 @@
         const amountToAdd = Math.round(currentHopperMax * multiplier);
         const input = document.getElementById(inputId);
         const currentVal = Number(input.value) || 0;
-        input.value = currentVal + amountToAdd;
+        input.value = Math.max(0, currentVal + amountToAdd);
+    }
+
+    function subtractScore(inputId, multiplier) {
+        const amountToSub = Math.round(currentHopperMax * multiplier);
+        const input = document.getElementById(inputId);
+        const currentVal = Number(input.value) || 0;
+        input.value = Math.max(0, currentVal - amountToSub);
+    }
+
+    function addAmount(inputId, valve){
+        const amountToAdd = valve;
+        const input = document.getElementById(inputId);
+        const currentVal = Number(input.value) || 0;
+        input.value = Math.max(0, currentVal + amountToAdd);
+    }
+
+    function subtractAmount(inputId, valve){
+        const amountToSub = valve;
+        const input = document.getElementById(inputId);
+        const currentVal = Number(input.value) || 0;
+        input.value = Math.max(0, currentVal - amountToSub);
     }
 
     // --- FORM SUBMISSIONS ---
@@ -345,7 +480,7 @@
             t: Number(document.getElementById('m_team').value),
             m: Number(document.getElementById('m_match').value),
             al: alliance,
-            sp: document.getElementById('m_startPos').value,
+            sp: document.getElementById('m_startpos').value,
             a: Number(document.getElementById('m_auton').value),
             tl: Number(document.getElementById('m_teleop').value),
             e: Number(document.getElementById('m_endgame').value),
@@ -400,6 +535,7 @@
     // --- DATA VIEWS ---
     function renderTeamTab() {
         const matches = JSON.parse(localStorage.getItem('frcMatch')) || [];
+        const pits = JSON.parse(localStorage.getItem('frcPit')) || [];
         const select = document.getElementById('teamSelect');
         const grouped = {};
         
@@ -411,7 +547,11 @@
             grouped[m.t].endgame += m.e;
         });
 
-        select.innerHTML = '<option value="">-- Choose a Team --</option>';
+        pits.forEach(pit => {
+            if (!grouped[pit.t]) grouped[pit.t] = { count: 0, auton: 0, teleop: 0, endgame: 0 };
+        });
+
+        select.innerHTML = '<option value="">All Teams</option>';
         Object.keys(grouped).sort((a,b) => a-b).forEach(team => {
             select.innerHTML += `<option value="${team}">Team ${team}</option>`;
         });
@@ -419,10 +559,10 @@
         let html = '';
         Object.keys(grouped).sort((a,b) => a-b).forEach(team => {
             const g = grouped[team];
-            const avgA = (g.auton / g.count).toFixed(1);
-            const avgT = (g.teleop / g.count).toFixed(1);
-            const avgE = (g.endgame / g.count).toFixed(1);
-            const total = (Number(avgA) + Number(avgT) + Number(avgE)).toFixed(1);
+            const avgA = g.count ? (g.auton / g.count).toFixed(1) : '-';
+            const avgT = g.count ? (g.teleop / g.count).toFixed(1) : '-';
+            const avgE = g.count ? (g.endgame / g.count).toFixed(1) : '-';
+            const total = g.count ? (Number(avgA) + Number(avgT) + Number(avgE)).toFixed(1) : '-';
             html += `<tr><td><strong>${team}</strong></td><td>${g.count}</td><td>${avgA}</td><td>${avgT}</td><td>${avgE}</td><td><strong>${total}</strong></td></tr>`;
         });
         document.getElementById('teamAveragesBody').innerHTML = html || '<tr><td colspan="6">No data yet</td></tr>';
@@ -440,12 +580,35 @@
 
         const pits = JSON.parse(localStorage.getItem('frcPit')) || [];
         const pitData = pits.find(p => p.t === teamNum);
+        const matches = (JSON.parse(localStorage.getItem('frcMatch')) || [])
+            .filter(match => match.t === teamNum)
+            .sort((a, b) => a.m - b.m);
         
         let pitHtml = pitData ? `
             <strong>Pit Data:</strong> Max Hopper: ${pitData.h} | Shooter: ${pitData.s} | Trench: ${pitData.tr?'Yes':'No'} | Bump: ${pitData.b?'Yes':'No'}
         ` : '<em>No pit data found for this team.</em>';
+        let matchHtml = matches.length ? `
+            <h3>Match Data</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>Match</th><th>Alliance</th><th>Auton</th><th>Teleop</th><th>Endgame</th><th>Rating</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>${matches.map(match => `
+                        <tr>
+                            <td><strong>Q${match.m}</strong></td>
+                            <td>${match.al}</td>
+                            <td>${match.a}</td>
+                            <td>${match.tl}</td>
+                            <td>${match.e}</td>
+                            <td>${match.r}/5</td>
+                            <td>${match.n || '-'}</td>
+                        </tr>`).join('')}</tbody>
+                </table>
+            </div>
+        ` : '<p><em>No match data found for this team.</em></p>';
 
-        container.innerHTML = `<h3>Team ${teamNum} Overview</h3><p>${pitHtml}</p>`;
+        container.innerHTML = `<h3>Team ${teamNum} Overview</h3><p>${pitHtml}</p>${matchHtml}`;
         container.style.display = 'block';
         document.getElementById('teamAveragesTable').style.display = 'none';
     }
