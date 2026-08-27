@@ -47,6 +47,56 @@
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background-color: #f8f9fa; font-weight: bold; }
         .table-responsive { overflow-x: auto; }
+        #teamAveragesTable{
+            background-color: white;
+        }
+        
+        .view-table-wrap {
+            overflow-x: auto;
+            border: 1px solid #c7d0e5;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(44, 62, 80, 0.15);
+        }
+        
+        .view-table {
+            min-width: 620px;
+            margin-top: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+        }
+        
+        .view-table th {
+            background: #2c3e50;
+            color: white;
+            border-bottom: 0;
+            white-space: nowrap;
+        }
+        
+        .view-table td {
+            background: white;
+        }
+        
+        .view-table tbody tr:nth-child(even) td {
+            background: #f5f7fb;
+        }
+        
+        .view-table tbody tr:hover td {
+            background: #e8f0ff;
+        }
+        
+        .view-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+        
+        .view-table th:first-child {
+            border-top-left-radius: 7px;
+        }
+        
+        .view-table th:last-child {
+            border-top-right-radius: 7px;
+        }
         
         #qrcode-container { display: flex; justify-content: center; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; }
         #reader { width: 100%; max-width: 500px; margin: 0 auto; display: none; }
@@ -80,6 +130,10 @@
             width: 150px;
             height: 150px;
             object-fit: contain;
+        }
+
+        .tv_table{
+            background-color: #737373;
         }
     </style>
 </head>
@@ -307,10 +361,10 @@
                 <option value="">All Teams</option>
             </select>
         </div>
-        <div id="teamStatsContainer" style="display:none; background:#f8f9fa; padding:15px; border-radius:5px; margin-bottom:15px;"></div>
+        <div id="teamStatsContainer" style="display:none; background:#fdfdfd; padding:15px; border-radius:5px; margin-bottom:15px;"></div>
         
-        <div class="table-responsive">
-            <table id="teamAveragesTable">
+        <div class="view-table-wrap">
+            <table id="teamAveragesTable" class="view-table">
                 <thead>
                     <tr>
                         <th>Team</th>
@@ -329,8 +383,8 @@
     <!-- MATCH VIEW TAB -->
     <div id="allMatchesTab" class="tab-content">
         <div class="view-heading"><h2>All Individual Matches</h2><img src="CCrest.png" alt="Scouting team crest"></div>
-        <div class="table-responsive">
-            <table>
+        <div class="view-table-wrap">
+            <table class="view-table">
                 <thead>
                     <tr>
                         <th>Match</th>
@@ -589,8 +643,8 @@
         ` : '<em>No pit data found for this team.</em>';
         let matchHtml = matches.length ? `
             <h3>Match Data</h3>
-            <div class="table-responsive">
-                <table>
+            <div class="view-table-wrap">
+                <table class="view-table">
                     <thead>
                         <tr><th>Match</th><th>Alliance</th><th>Auton</th><th>Teleop</th><th>Endgame</th><th>Rating</th><th>Notes</th></tr>
                     </thead>
