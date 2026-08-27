@@ -344,6 +344,7 @@
             <div class="form-group"><label>Shooter Type</label><input type="text" id="p_shooter" required></div>
             <div class="form-group"><label>Auton Route(s)</label><input type="text" id="p_routes" required></div>
             <div class="form-group"><label>Avg Expected Auton Score</label><input type="number" id="p_avgAuton" min="0" required></div>
+            <div class="form-group"><label for="p_notes">Notes (Optional)</label><textarea id="p_notes" rows="4"></textarea></div>
             
             <div class="form-group checkbox-group">
                 <label><input type="checkbox" id="p_trench"> Can go under trench?</label>
@@ -580,7 +581,8 @@
             ar: document.getElementById('p_routes').value,
             aa: Number(document.getElementById('p_avgAuton').value),
             tr: document.getElementById('p_trench').checked,
-            b: document.getElementById('p_bump').checked
+            b: document.getElementById('p_bump').checked,
+            n: document.getElementById('p_notes').value
         });
         localStorage.setItem('frcPit', JSON.stringify(filteredData));
         alert('Pit data saved!');
@@ -640,7 +642,7 @@
             .sort((a, b) => a.m - b.m);
         
         let pitHtml = pitData ? `
-            <strong>Pit Data:</strong> Max Hopper: ${pitData.h} | Shooter: ${pitData.s} | Trench: ${pitData.tr?'Yes':'No'} | Bump: ${pitData.b?'Yes':'No'}
+            <strong>Pit Data:</strong> Max Hopper: ${pitData.h} | Shooter: ${pitData.s} | Trench: ${pitData.tr?'Yes':'No'} | Bump: ${pitData.b?'Yes':'No'}${pitData.n ? ` | Notes: ${pitData.n}` : ''}
         ` : '<em>No pit data found for this team.</em>';
         let matchHtml = matches.length ? `
             <h3>Match Data</h3>
