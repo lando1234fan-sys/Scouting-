@@ -102,17 +102,12 @@
         #qrcode-container { display: flex; justify-content: center; margin: 20px 0; padding: 20px; background: white; border-radius: 8px; }
         #reader { width: 100%; max-width: 500px; margin: 0 auto; display: none; }
         
-        .hopper-assist { background: #e8f8f5; border-left: 4px solid #1abc9c; padding: 10px; margin-bottom: 15px; display: none; border-radius: 4px; }
-        .hopper-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; flex-wrap: wrap; }
+        .hopper-assist, .normal_buttons { background: #e8f8f5; border-left: 4px solid #1abc9c; padding: 10px; margin-bottom: 15px; display: none; border-radius: 4px; }
+        .hopper-row, .normal_buttons { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; flex-wrap: wrap; }
         .hopper-row strong { width: 80px; font-size: 13px; }
         
         .note-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
         .note-content { background: white; padding: 20px; border-radius: 8px; width: 80%; max-width: 400px; }
-
-        .normal_buttons {
-            background: #e8f8f5; border-left: 4px solid #1abc9c; padding: 10px; margin-bottom: 15px; display: none; border-radius: 4px; 
-            display: flex; align-items: center; gap: 10px; margin-bottom: 5px; flex-wrap: wrap;
-        }
 
         .view-heading {
             display: flex;
@@ -203,17 +198,17 @@
                     </div>
                 </div>
                 <div class="normal_buttons">
-                    <div style = "margin: 10;">
+                    <div>
                             <strong>Add:</strong>
-                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 20)">add 20</button>
-                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 10)">add 10</button>
-                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 2)">add 20</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 20)">+20</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 10)">+10</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_auton', 1)">+1</button>
                         </div>
-                    <div style ="margin: 10;">
+                    <div>
                             <strong>Subtract:</strong>
-                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 20)">subtract 20</button>
-                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 10)">subtract 10</button>
-                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 2)">subtract 20</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 20)">-20</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 10)">-10</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 2)">-1</button>
                         </div>
                         
 
@@ -249,17 +244,17 @@
                     </div>
                 </div>
                 <div class="normal_buttons">
-                    <div style = "margin: 10;">
+                    <div>
                             <strong>Add</strong>
-                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 20)">add 20</button>
-                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 10)">add 10</button>
-                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 2)">add 2</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 20)">+20</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 10)">+10</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_teleop', 1)">+1</button>
                         </div>
-                    <div style ="margin: 10;">
+                    <div>
                             <strong>Subtract</strong>
-                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 20)">subtract 20</button>
-                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 10)">subtract 10</button>
-                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 2)">subtract 20</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 20)">-20</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 10)">-10</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_auton', 1)">-20</button>
                         </div>
                         
                 </div>
@@ -296,17 +291,17 @@
                     
                 </div>
                 <div class="normal_buttons">
-                    <div style = "margin: 10;">
+                    <div>
                             <strong>Add</strong>
                             <button type="button" class="small-btn" onclick="addAmount('m_endgame', 20)">+20</button>
                             <button type="button" class="small-btn" onclick="addAmount('m_endgame', 10)">+10</button>
-                            <button type="button" class="small-btn" onclick="addAmount('m_endgame', 2)">+2</button>
+                            <button type="button" class="small-btn" onclick="addAmount('m_endgame', 1)">+1</button>
                         </div>
-                    <div style ="margin: 10;">
+                    <div>
                             <strong>Subtract</strong>
                             <button type="button" class="small-btn" onclick="subtractAmount('m_endgame', 20)">-20</button>
                             <button type="button" class="small-btn" onclick="subtractAmount('m_endgame', 10)">-10</button>
-                            <button type="button" class="small-btn" onclick="subtractAmount('m_endgame', 2)">-0</button>
+                            <button type="button" class="small-btn" onclick="subtractAmount('m_endgame', 1)">-1</button>
                         </div>
                         
                 </div>
@@ -494,7 +489,7 @@
             document.getElementById('autonAssist').style.display = 'none';
             document.getElementById('teleopAssist').style.display = 'none';
             document.getElementById('endgameAssist').style.display = 'none';
-            document.querySelectorAll('.normal_buttons').forEach(el => { el.style.display = 'block'; });
+            document.querySelectorAll('.normal_buttons').forEach(el => { el.style.display = 'flex'; });
         }
     });
 
