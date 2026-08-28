@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- HTML5 QR Code Scanner -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <link rel="icon" type="image/webp" href="./bots.webp">
+    <link rel="icon" type="image/webp" href="./Assets/bots.webp">
     
     <style>
         body { font-family:  BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; background: #000000; color: #333; }
@@ -150,7 +150,7 @@
             
             <!-- STEP 1: SETUP -->
             <div id="step-setup" class="wizard-step active">
-                <div class="view-heading"><h2>Phase 1: Setup</h2><img src="CCrest.png" alt="Scouting team crest"></div>
+                <div class="view-heading"><h2>Phase 1: Setup</h2><img src="./Assets/CCrest.png" alt="Scouting team crest"></div>
                 <div style="display:flex; gap:10px;">
                     <div class="form-group" style="flex:1;"><label>Team Number</label><input type="number" id="m_team" min="0" required></div>
                     <div class="form-group" style="flex:1;"><label>Match Number</label><input type="number" id="m_match" min="0" required></div>
@@ -178,7 +178,7 @@
 
             <!-- STEP 2: AUTON -->
             <div id="step-auton" class="wizard-step">
-                <div class="view-heading"><h2>Phase 2: Autonomous</h2><img src="CCrest.png" alt="Scouting team crest"></div>
+                <div class="view-heading"><h2>Phase 2: Autonomous</h2><img src="./Assets/CCrest.png" alt="Scouting team crest"></div>
                 
                 <div id="autonAssist" class="hopper-assist">
                     <div style="margin-bottom: 5px;"> Max Hopper is <span class="ha_max_display"></span>.</div>
@@ -224,7 +224,7 @@
 
             <!-- STEP 3: TELEOP -->
             <div id="step-teleop" class="wizard-step">
-                <div class="view-heading"><h2>Phase 3: Teleop</h2><img src="CCrest.png" alt="Scouting team crest"></div>
+                <div class="view-heading"><h2>Phase 3: Teleop</h2><img src="./Assets/CCrest.png" alt="Scouting team crest"></div>
 
                 <div id="teleopAssist" class="hopper-assist">
                     <div style="margin-bottom: 5px;"> Max Hopper is <span class="ha_max_display"></span>.</div>
@@ -269,7 +269,7 @@
 
             <!-- STEP 4: ENDGAME & SAVE -->
             <div id="step-endgame" class="wizard-step">
-                <div class="view-heading"><h2>Phase 4: Endgame & Notes</h2><img src="CCrest.png" alt="Scouting team crest"></div>
+                <div class="view-heading"><h2>Phase 4: Endgame & Notes</h2><img src="./Assets/CCrest.png" alt="Scouting team crest"></div>
 
                 <div id="endgameAssist" class="hopper-assist">
                     <div style="margin-bottom: 5px;"> Max Hopper is <span class="ha_max_display"></span>.</div>
@@ -332,7 +332,7 @@
 
     <!-- PIT SCOUTING TAB -->
     <div id="pitTab" class="tab-content">
-        <div class="view-heading"><h2>Pit Scouting</h2><img src="CCrest.png" alt="Scouting team crest"></div>
+        <div class="view-heading"><h2>Pit Scouting</h2><img src="./Assets/CCrest.png" alt="Scouting team crest"></div>
         <form id="pitForm">
             <div class="form-group"><label>Team Number</label><input type="number" id="p_team" min="0" required></div>
             <div class="form-group"><label>Max Hopper Capacity</label><input type="number" id="p_hopper" min="0" required></div>
@@ -351,7 +351,7 @@
 
     <!-- TEAM VIEW TAB -->
     <div id="teamTab" class="tab-content">
-        <div class="view-heading"><h2>Team Averages</h2><img src="CCrest.png" alt="Scouting team crest"></div>
+        <div class="view-heading"><h2>Team Averages</h2><img src="./Assets/CCrest.png" alt="Scouting team crest"></div>
         <div class="form-group">
             <label>Select Team to Inspect</label>
             <select id="teamSelect" onchange="renderSpecificTeam()">
@@ -379,7 +379,7 @@
 
     <!-- MATCH VIEW TAB -->
     <div id="allMatchesTab" class="tab-content">
-        <div class="view-heading"><h2>All Individual Matches</h2><img src="CCrest.png" alt="Scouting team crest"></div>
+        <div class="view-heading"><h2>All Individual Matches</h2><img src="./Assets/CCrest.png" alt="Scouting team crest"></div>
         <div class="view-table-wrap">
             <table class="view-table">
                 <thead>
@@ -401,7 +401,7 @@
 
     <!-- SYNC / QR TAB -->
     <div id="syncTab" class="tab-content">
-        <div class="view-heading"><h2>Transfer Data</h2><img src="CCrest.png" alt="Scouting team crest"></div>
+        <div class="view-heading"><h2>Transfer Data</h2><img src="./Assets/CCrest.png" alt="Scouting team crest"></div>
         <button class="action-btn secondary-btn" onclick="generateQR()">1. Generate Data QR Code (Export)</button>
         <div id="qrcode-container"></div>
         <hr style="margin: 30px 0;">
